@@ -1,4 +1,6 @@
 const { app, BrowserWindow, globalShortcut, clipboard } = require("electron");
+const { exec, execFile } = require("child_process");
+const path = require("path");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -61,18 +63,23 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
-    const selectedText = clipboard.readText();
-    if (mainWindow) {
-      if (mainWindow.webContents.isLoading()) {
-        mainWindow.webContents.once("did-finish-load", () => {
-          mainWindow.webContents.send("selected-text", selectedText);
-          mainWindow.show();
-        });
-      } else {
-        mainWindow.webContents.send("selected-text", selectedText);
-        mainWindow.show();
+    execFile(
+      "osascript",
+      [path.join(__dirname, "get-highlighted-text.applescript")],
+      (error, selectedText, stderr) => {
+        if (mainWindow) {
+          if (mainWindow.webContents.isLoading()) {
+            mainWindow.webContents.once("did-finish-load", () => {
+              mainWindow.webContents.send("selected-text", selectedText);
+              mainWindow.show();
+            });
+          } else {
+            mainWindow.webContents.send("selected-text", selectedText);
+            mainWindow.show();
+          }
+        }
       }
-    }
+    );
   });
 });
 
