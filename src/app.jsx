@@ -103,7 +103,7 @@ export default function App() {
     window.api.onTextSelected(async (text) => {
       setSelectedText(text);
       if (text) {
-        getLatestSelectedTextResponse();
+        getLatestSelectedTextResponse(text);
       }
     });
   }, [getLatestSelectedTextResponse]);
@@ -176,6 +176,8 @@ export default function App() {
   );
 }
 
-const rootNode = document.getElementById("app");
-const appRoot = createRoot(rootNode);
-appRoot.render(<App />);
+document.addEventListener("DOMContentLoaded", () => {
+  const rootNode = document.getElementById("app");
+  const appRoot = createRoot(rootNode);
+  appRoot.render(<App />);
+});

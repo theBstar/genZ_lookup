@@ -12,6 +12,7 @@ if (require("electron-squirrel-startup")) {
 const SERVICE_NAME = "genZ-lookup";
 const ACCOUNT_NAME = "app-settings-has-key-and-prompt";
 
+const isDevelopment = process.env.NODE_ENV === "development";
 let mainWindow;
 
 const createWindow = () => {
@@ -21,6 +22,7 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nativeWindowOpen: true,
     },
   });
 
@@ -42,8 +44,10 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (isDevelopment) {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // This method will be called when Electron has finished
