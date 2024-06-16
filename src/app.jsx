@@ -37,11 +37,16 @@ function SettingsModal({ closeModal }) {
   async function saveSettings() {
     setIsLoading(true);
     await window.api.saveSettings(settings);
+    setIsLoading(false);
     closeModal();
   }
 
   if (isLoading) {
-    return <Spin />;
+    return (
+      <Flex justify="center" align="center" style={{ minHeight: 300 }}>
+        <Spin />
+      </Flex>
+    );
   }
 
   return (
@@ -64,6 +69,7 @@ function SettingsModal({ closeModal }) {
         block
         disabled={!settings.apiKey || !settings.basePrompt}
         onClick={saveSettings}
+        type="primary"
       >
         Save
       </Button>
@@ -82,8 +88,9 @@ export default function App() {
   });
 
   const getLatestSelectedTextResponse = React.useCallback(async (text) => {
-    setIsLoaded(true);
     const latestText = text || selectedText;
+    if (!latestText) return;
+    setIsLoaded(true);
     const response = await window.api.getLLMResponse(latestText);
     setLlmResult({
       resultForText: latestText,
@@ -113,11 +120,8 @@ export default function App() {
     <ConfigProvider
       theme={{
         token: {
-          // Seed Token
           colorPrimary: "#00b96b",
           borderRadius: 8,
-          // Alias Token
-          colorBgContainer: "#f6ffed",
         },
       }}
     >
@@ -143,6 +147,7 @@ export default function App() {
           value={selectedText}
           onChange={(e) => setSelectedText(e.target.value)}
           onSearch={getLatestSelectedTextResponse}
+          enterButton
         />
         <Card loading={isLoaded}>
           {llmResult.resultForText ? (
