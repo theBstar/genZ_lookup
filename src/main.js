@@ -1,11 +1,15 @@
-const { app, BrowserWindow, globalShortcut, clipboard } = require("electron");
-const { exec, execFile } = require("child_process");
+const { app, BrowserWindow, globalShortcut, ipcMain } = require("electron");
+const { execFile } = require("child_process");
 const path = require("path");
+const keytar = require("keytar");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
+
+const SERVICE_NAME = "genZ-lookup";
+const ACCOUNT_NAME = "app-settings-has-key-and-prompt";
 
 let mainWindow;
 
@@ -80,6 +84,23 @@ app.whenReady().then(() => {
         }
       }
     );
+  });
+
+  ipcMain.handle("save-settings", async (_event, settingsJsonStr) => {
+    try {
+      await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, settingsJsonStr);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
+  ipcMain.handle("get-settings", async () => {
+    const settingsJsonStr = await keytar.getPassword(
+      SERVICE_NAME,
+      ACCOUNT_NAME
+    );
+    return settingsJsonStr;
   });
 });
 
