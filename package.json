@@ -1,8 +1,8 @@
 {
-  "name": "test-electron",
-  "productName": "test-electron",
+  "name": "genZ-lookup",
+  "productName": "genZ-lookup",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Cmd + G to lookup genZ meaning.",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",

@@ -49,19 +49,29 @@ const createWindow = () => {
 app.whenReady().then(() => {
   createWindow();
 
-  globalShortcut.register("CommandOrControl+G", () => {
-    const selectedText = clipboard.readText();
-    if (mainWindow) {
-      mainWindow.webContents.send("selected-text", selectedText);
-      mainWindow.show();
-    }
-  });
-
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
+    }
+  });
+
+  globalShortcut.register("CommandOrControl+G", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+    const selectedText = clipboard.readText();
+    if (mainWindow) {
+      if (mainWindow.webContents.isLoading()) {
+        mainWindow.webContents.once("did-finish-load", () => {
+          mainWindow.webContents.send("selected-text", selectedText);
+          mainWindow.show();
+        });
+      } else {
+        mainWindow.webContents.send("selected-text", selectedText);
+        mainWindow.show();
+      }
     }
   });
 });
@@ -70,9 +80,8 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  app.dock.hide();
+  // app.quit();
 });
 
 app.on("will-quit", () => {
