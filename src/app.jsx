@@ -153,7 +153,7 @@ export default function App() {
           {llmResult.resultForText ? (
             <Flex vertical gap={8}>
               <Typography.Text type="secondary">
-                Showing results for: <b>{llmResult.resultForText}</b>
+                Showing results for <b>{llmResult.resultForText}</b>
               </Typography.Text>
               <Typography.Text>{llmResult.result}</Typography.Text>
             </Flex>

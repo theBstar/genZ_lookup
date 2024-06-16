@@ -2,6 +2,7 @@ const { app, BrowserWindow, globalShortcut, ipcMain } = require("electron");
 const { execFile } = require("child_process");
 const path = require("path");
 const keytar = require("keytar");
+const { ChatOpenAI } = require("@langchain/openai");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -101,6 +102,30 @@ app.whenReady().then(() => {
       ACCOUNT_NAME
     );
     return settingsJsonStr;
+  });
+
+  ipcMain.handle("get-llm-response", async (_event, selectedText) => {
+    try {
+      const settingsJsonStr = await keytar.getPassword(
+        SERVICE_NAME,
+        ACCOUNT_NAME
+      );
+      const settings = JSON.parse(settingsJsonStr);
+      const llm = new ChatOpenAI({
+        model: "gpt-3.5-turbo",
+        temperature: 0,
+        streaming: false,
+        apiKey: settings.apiKey,
+      });
+
+      const prompt = `${settings.basePrompt} 
+      User aks: ${selectedText}`;
+
+      const result = await llm.invoke(prompt);
+      return result.content;
+    } catch (e) {
+      return "Error fetching response. Please try again later.";
+    }
   });
 });
 

@@ -3,8 +3,7 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
-const { contextBridge, ipcRenderer, ipcMain } = require("electron");
-const { ChatOpenAI } = require("@langchain/openai");
+const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
   onTextSelected: (callback) =>
@@ -14,20 +13,8 @@ contextBridge.exposeInMainWorld("api", {
 
   getLLMResponse: async (selectedText) => {
     try {
-      const settingsJsonStr = await ipcRenderer.invoke("get-settings");
-      const settings = JSON.parse(settingsJsonStr);
-      const llm = new ChatOpenAI({
-        model: "gpt-3.5-turbo",
-        temperature: 0,
-        streaming: false,
-        apiKey: settings.apiKey,
-      });
-
-      const prompt = `${settings.basePrompt} 
-      User aks: ${selectedText}`;
-
-      const result = await llm.invoke(prompt);
-      return result.content;
+      const result = await ipcRenderer.invoke("get-llm-response", selectedText);
+      return result;
     } catch (e) {
       return "Error fetching response. Please try again later.";
     }
