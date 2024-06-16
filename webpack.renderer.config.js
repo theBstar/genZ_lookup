@@ -1,6 +1,4 @@
 const rules = require("./webpack.rules");
-const path = require("path");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 rules.push({
   test: /\.css$/,
@@ -12,14 +10,4 @@ module.exports = {
   module: {
     rules,
   },
-  plugins: [
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, "src/get-highlighted-text.applescript"),
-          to: path.resolve(__dirname, ".webpack/main"),
-        },
-      ],
-    }),
-  ],
 };
